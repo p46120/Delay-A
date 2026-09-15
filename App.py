@@ -110,7 +110,7 @@ if st.button('Predict Delivery Delay'):
     'Package_Weight': Package_Weight,
     'Fuel_Efficiency': Fuel_Efficiency,
     'Warehouse_Processing_Time': Warehouse_Processing_Time
-}])
+])
 
 # Ensure the order of columns matches the training data
 input_data = input_data[feature_names]
