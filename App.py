@@ -2,39 +2,106 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load the trained model and scaler
-logi_scaled = joblib.load('logi_scaled.sav')
-scaler = joblib.load('scaler.sav')
+# Load the trained model
+try:
+    model = joblib.load('logi.sav')
+except FileNotFoundError:
+    st.error("Model file 'logi.sav' not found. Please ensure the model is saved in the same directory.")
+    st.stop()
 
-# Define the feature names (same order as during training)
+# Feature names used during model training
 feature_names = [
-    'Delivery_Distance', 'Traffic_Congestion', 'Weather_Condition',
-    'Delivery_Slot', 'Driver_Experience', 'Num_Stops', 'Vehicle_Age',
-    'Road_Condition_Score', 'Package_Weight', 'Fuel_Efficiency',
+    'Delivery_Distance',
+    'Traffic_Congestion',
+    'Weather_Condition',
+    'Delivery_Slot',
+    'Driver_Experience',
+    'Num_Stops',
+    'Vehicle_Age',
+    'Road_Condition_Score',
+    'Package_Weight',
+    'Fuel_Efficiency',
     'Warehouse_Processing_Time'
 ]
 
 st.title('Delivery Delay Prediction App')
 st.write('Enter the details below to predict if a delivery will be delayed.')
 
-# Create input fields for each feature
-Delivery_Distance = st.slider('Delivery Distance (km)', 0.0, 50.0, 25.0)
-Traffic_Congestion = st.slider('Traffic Congestion (1-5)', 1, 5, 3)
-Weather_Condition = st.slider('Weather Condition (1-5)', 1, 5, 3)
-Delivery_Slot = st.slider('Delivery Slot (1-3)', 1, 3, 2)
-Driver_Experience = st.slider('Driver Experience (years)', 0, 20, 10)
-Num_Stops = st.slider('Number of Stops', 1, 10, 5)
-Vehicle_Age = st.slider('Vehicle Age (years)', 0, 15, 7)
-Road_Condition_Score = st.slider('Road Condition Score (1-5)', 1, 5, 3)
-Package_Weight = st.slider('Package Weight (kg)', 0.0, 50.0, 25.0)
-Fuel_Efficiency = st.slider('Fuel Efficiency (km/l)', 0.0, 20.0, 10.0)
-Warehouse_Processing_Time = st.slider('Warehouse Processing Time (minutes)', 0, 120, 60)
+# Create input fields
+input_data = {}
 
-# Create a DataFrame from user inputs
-input_data = pd.DataFrame([{
-    'Delivery_Distance': Delivery_Distance,
-    'Traffic_Congestion': Traffic_Congestion,
-    'Weather_Condition': Weather_Condition,
+for feature in feature_names:
+
+    if feature == 'Traffic_Congestion':
+        input_data[feature] = st.slider(
+            f'{feature} (1=Low, 5=High)', 1, 5, 3
+        )
+
+    elif feature == 'Weather_Condition':
+        input_data[feature] = st.slider(
+            f'{feature} (1=Good, 5=Bad)', 1, 5, 3
+        )
+
+    elif feature == 'Delivery_Slot':
+        input_data[feature] = st.slider(
+            f'{feature} (1, 2, 3)', 1, 3, 2
+        )
+
+    elif feature == 'Road_Condition_Score':
+        input_data[feature] = st.slider(
+            f'{feature} (1=Bad, 5=Good)', 1, 5, 3
+        )
+
+    elif feature == 'Driver_Experience':
+        input_data[feature] = st.slider(
+            f'{feature} (Years)', 0, 30, 5
+        )
+
+    elif feature == 'Num_Stops':
+        input_data[feature] = st.slider(
+            f'{feature}', 1, 10, 3
+        )
+
+    elif feature == 'Vehicle_Age':
+        input_data[feature] = st.slider(
+            f'{feature} (Years)', 0, 15, 3
+        )
+
+    elif feature == 'Warehouse_Processing_Time':
+        input_data[feature] = st.slider(
+            f'{feature} (Minutes)', 10, 120, 60
+        )
+
+    else:
+        input_data[feature] = st.number_input(
+            f'Enter {feature}', value=0.0
+        )
+
+# Convert input to DataFrame
+input_df = pd.DataFrame([input_data])
+
+# Prediction
+if st.button('Predict Delivery Delay'):
+
+    try:
+        prediction = model.predict(input_df)
+        prediction_proba = model.predict_proba(input_df)[:, 1]
+
+        st.subheader('Prediction Result:')
+
+        if prediction[0] == 1:
+            st.error(
+                f"The delivery is predicted to be **DELAYED** "
+                f"(Probability: {prediction_proba[0]:.2f})"
+            )
+        else:
+            st.success(
+                f"The delivery is predicted to be **ON TIME** "
+                f"(Probability: {prediction_proba[0]:.2f})"
+            )
+
+    except Exception as e:
+        st.error(f"An error occurred during prediction: {e}")    'Weather_Condition': Weather_Condition,
     'Delivery_Slot': Delivery_Slot,
     'Driver_Experience': Driver_Experience,
     'Num_Stops': Num_Stops,
