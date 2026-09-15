@@ -101,37 +101,4 @@ if st.button('Predict Delivery Delay'):
             )
 
     except Exception as e:
-        st.error(f"An error occurred during prediction: {e}")    'Weather_Condition': Weather_Condition,
-    'Delivery_Slot': Delivery_Slot,
-    'Driver_Experience': Driver_Experience,
-    'Num_Stops': Num_Stops,
-    'Vehicle_Age': Vehicle_Age,
-    'Road_Condition_Score': Road_Condition_Score,
-    'Package_Weight': Package_Weight,
-    'Fuel_Efficiency': Fuel_Efficiency,
-    'Warehouse_Processing_Time': Warehouse_Processing_Time
-])
-
-# Ensure the order of columns matches the training data
-input_data = input_data[feature_names]
-
-if st.button('Predict Delivery Delay'):
-    # Scale the input data
-    input_scaled = scaler.transform(input_data)
-
-    # Make prediction
-    prediction = logi_scaled.predict(input_scaled)
-    prediction_proba = logi_scaled.predict_proba(input_scaled)[:, 1]
-
-    st.subheader('Prediction Result:')
-    if prediction[0] == 1:
-        st.error(f'The delivery is likely to be **DELAYED** (Probability: {prediction_proba[0]:.2f})')
-    else:
-        st.success(f'The delivery is likely to be **ON TIME** (Probability: {prediction_proba[0]:.2f})')
-
-st.markdown("""
---- 
-#### Model Details:
-- **Model**: Logistic Regression
-- **Features**: Delivery Distance, Traffic Congestion, Weather Condition, Delivery Slot, Driver Experience, Num Stops, Vehicle Age, Road Condition Score, Package Weight, Fuel Efficiency, Warehouse Processing Time.
-""")
+        st.error(f"An error occurred during prediction: {e}")
